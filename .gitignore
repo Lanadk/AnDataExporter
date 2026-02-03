@@ -15,5 +15,5 @@ yarn-error.log*
 package-lock.json
 
 
-src/data
+src/data/**/*.json
 src/exports
