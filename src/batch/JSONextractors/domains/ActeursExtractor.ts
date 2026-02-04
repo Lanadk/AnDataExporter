@@ -35,7 +35,7 @@ export class ActeursExtractor implements Extractor {
     processFile(filePath: string): void {
         try {
             const data = this.loadFile(filePath);
-            this.extractActeurData(data);
+            this.extractData(data);
         } catch (error) {
             this.errors.push({
                 file: path.basename(filePath),
@@ -58,7 +58,7 @@ export class ActeursExtractor implements Extractor {
         return this.errors;
     }
 
-    private extractActeurData(data: any): void {
+    private extractData(data: any): void {
         const acteur = data.acteur || data;
         if (!acteur.uid) throw new Error('Missing uid');
 
