@@ -1,9 +1,10 @@
 import fs from "fs";
 import https from "https";
 import path from "path";
-import {ensureDir, getTargetPath} from "../utils/utils";
-import {unzipFile} from "../utils/unzip";
-import {items} from "./item";
+import {ensureDir, getTargetPath} from "../../utils/utils";
+import {items} from "./scripts/item";
+import {unzipFile} from "../../utils/unzip";
+
 
 async function downloadFile(url: string, dest: string) {
     if (fs.existsSync(dest)) {
@@ -28,6 +29,7 @@ async function downloadFile(url: string, dest: string) {
 }
 
 async function main() {
+    console.log("Starting Download Job");
     for (const item of items) {
         const targetDir = getTargetPath(item.legislature, item.status, item.type);
         ensureDir(targetDir);
@@ -35,6 +37,7 @@ async function main() {
         await downloadFile(item.url, zipPath);
         await unzipFile(zipPath, targetDir);
     }
+    console.log("Ending Download Job");
 }
 
 main().catch(console.error);

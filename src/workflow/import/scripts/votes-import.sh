@@ -1,17 +1,37 @@
 #!/usr/bin/env bash
 
+set -e  # Exit on error
+
+# SOURCING
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/paths.sh"
+
+# Gestion du paramètre --auto-cleanup
+AUTO_CLEANUP=false
+if [[ "$1" == "--auto-cleanup" ]]; then
+    AUTO_CLEANUP=true
+    echo "ℹ️  Auto cleanup mode enabled"
+fi
+
+# Check des repertoires
+for dir in "$SCHEMA_DIR" "$TABLES_DIR"; do
+  if [ ! -d "$dir" ]; then
+    echo "❌ Missing directory: $dir"
+    exit 1
+  fi
+done
+
 # ==============================================================================
 # VOTES - IMPORT COMPLET (LOCAL VERSION)
 # ==============================================================================
-
-set -e  # Exit on error
-export MSYS_NO_PATHCONV=1  # Désactive la conversion de chemin Windows
-
-DB_CONTAINER="deputedex-db"
-DB_USER="dev"
-DB_NAME="deputedex"
-TABLES_DIR="../../exports/tables"
-SCHEMA_DIR="../../sql/schema"
+SCHEMA_NAME="votes.schema.sql"
+VOTES_JSON="votes.json"
+DEPUTES_JSON="deputes.json"
+GROUPES_JSON="groupes.json"
+VOTES_GROUPES_JSON="votesGroupes.json"
+VOTES_DEPUTES_JSON="votesDeputes.json"
+VOTES_AGREGATS_JSON="votesAgregats.json"
+VOTES_GROUPES_AGREGATS_JSON="votesGroupesAgregats.json"
 
 echo "=============================================="
 echo "VOTES IMPORT SCRIPT"
@@ -21,8 +41,8 @@ echo ""
 # ==============================================================================
 # STEP 1: Import Schema
 # ==============================================================================
-echo "Step 1: Importing schema..."
-cat $SCHEMA_DIR/votes-schema.sql | docker exec -i $DB_CONTAINER psql -U $DB_USER -d $DB_NAME
+echo "Importing schema..."
+cat $SCHEMA_DIR/$SCHEMA_NAME | docker exec -i $DB_CONTAINER psql -U $DB_USER -d $DB_NAME
 echo "✓ Schema imported"
 echo ""
 
@@ -34,14 +54,14 @@ echo "DEPUTES"
 echo "=============================================="
 
 echo "Copying JSON to container..."
-docker cp $TABLES_DIR/deputes.json $DB_CONTAINER:/deputes.json
+docker cp $TABLES_DIR/$DEPUTES_JSON $DB_CONTAINER:/$DEPUTES_JSON
 
 echo "Verifying file..."
-docker exec -it $DB_CONTAINER ls -lh /deputes.json
+docker exec -it $DB_CONTAINER ls -lh //$DEPUTES_JSON
 
 echo "Importing to raw table..."
 docker exec -it $DB_CONTAINER psql -U $DB_USER -d $DB_NAME -c \
-  "INSERT INTO deputes_raw (data) SELECT elem FROM jsonb_array_elements(pg_read_file('/deputes.json')::jsonb) AS elem;"
+  "INSERT INTO deputes_raw (data) SELECT elem FROM jsonb_array_elements(pg_read_file('//$DEPUTES_JSON')::jsonb) AS elem;"
 
 echo "Checking raw count..."
 docker exec -it $DB_CONTAINER psql -U $DB_USER -d $DB_NAME -c \
@@ -69,14 +89,14 @@ echo "GROUPES_PARLEMENTAIRES"
 echo "=============================================="
 
 echo "Copying JSON to container..."
-docker cp $TABLES_DIR/groupes.json $DB_CONTAINER:/groupes.json
+docker cp $TABLES_DIR/$GROUPES_JSON $DB_CONTAINER:/$GROUPES_JSON
 
 echo "Verifying file..."
-docker exec -it $DB_CONTAINER ls -lh /groupes.json
+docker exec -it $DB_CONTAINER ls -lh //$GROUPES_JSON
 
 echo "Importing to raw table..."
 docker exec -it $DB_CONTAINER psql -U $DB_USER -d $DB_NAME -c \
-  "INSERT INTO groupes_parlementaires_raw (data) SELECT elem FROM jsonb_array_elements(pg_read_file('/groupes.json')::jsonb) AS elem;"
+  "INSERT INTO groupes_parlementaires_raw (data) SELECT elem FROM jsonb_array_elements(pg_read_file('//$GROUPES_JSON')::jsonb) AS elem;"
 
 echo "Checking raw count..."
 docker exec -it $DB_CONTAINER psql -U $DB_USER -d $DB_NAME -c \
@@ -104,14 +124,14 @@ echo "VOTES"
 echo "=============================================="
 
 echo "Copying JSON to container..."
-docker cp $TABLES_DIR/votes.json $DB_CONTAINER:/votes.json
+docker cp $TABLES_DIR/$VOTES_JSON $DB_CONTAINER:/$VOTES_JSON
 
 echo "Verifying file..."
-docker exec -it $DB_CONTAINER ls -lh /votes.json
+docker exec -it $DB_CONTAINER ls -lh //$VOTES_JSON
 
 echo "Importing to raw table..."
 docker exec -it $DB_CONTAINER psql -U $DB_USER -d $DB_NAME -c \
-  "INSERT INTO votes_raw (data) SELECT elem FROM jsonb_array_elements(pg_read_file('/votes.json')::jsonb) AS elem;"
+  "INSERT INTO votes_raw (data) SELECT elem FROM jsonb_array_elements(pg_read_file('//$VOTES_JSON')::jsonb) AS elem;"
 
 echo "Checking raw count..."
 docker exec -it $DB_CONTAINER psql -U $DB_USER -d $DB_NAME -c \
@@ -141,14 +161,14 @@ echo "VOTES_GROUPES"
 echo "=============================================="
 
 echo "Copying JSON to container..."
-docker cp $TABLES_DIR/votesGroupes.json $DB_CONTAINER:/votesGroupes.json
+docker cp $TABLES_DIR/$VOTES_GROUPES_JSON $DB_CONTAINER:/$VOTES_GROUPES_JSON
 
 echo "Verifying file..."
-docker exec -it $DB_CONTAINER ls -lh /votesGroupes.json
+docker exec -it $DB_CONTAINER ls -lh //$VOTES_GROUPES_JSON
 
 echo "Importing to raw table..."
 docker exec -it $DB_CONTAINER psql -U $DB_USER -d $DB_NAME -c \
-  "INSERT INTO votes_groupes_raw (data) SELECT elem FROM jsonb_array_elements(pg_read_file('/votesGroupes.json')::jsonb) AS elem;"
+  "INSERT INTO votes_groupes_raw (data) SELECT elem FROM jsonb_array_elements(pg_read_file('//$VOTES_GROUPES_JSON')::jsonb) AS elem;"
 
 echo "Checking raw count..."
 docker exec -it $DB_CONTAINER psql -U $DB_USER -d $DB_NAME -c \
@@ -175,14 +195,14 @@ echo "VOTES_DEPUTES"
 echo "=============================================="
 
 echo "Copying JSON to container..."
-docker cp $TABLES_DIR/votesDeputes.json $DB_CONTAINER:/votesDeputes.json
+docker cp $TABLES_DIR/$VOTES_DEPUTES_JSON $DB_CONTAINER:/$VOTES_DEPUTES_JSON
 
 echo "Verifying file..."
-docker exec -it $DB_CONTAINER ls -lh /votesDeputes.json
+docker exec -it $DB_CONTAINER ls -lh //$VOTES_DEPUTES_JSON
 
 echo "Importing to raw table..."
 docker exec -it $DB_CONTAINER psql -U $DB_USER -d $DB_NAME -c \
-  "INSERT INTO votes_deputes_raw (data) SELECT elem FROM jsonb_array_elements(pg_read_file('/votesDeputes.json')::jsonb) AS elem;"
+  "INSERT INTO votes_deputes_raw (data) SELECT elem FROM jsonb_array_elements(pg_read_file('//$VOTES_DEPUTES_JSON')::jsonb) AS elem;"
 
 echo "Checking raw count..."
 docker exec -it $DB_CONTAINER psql -U $DB_USER -d $DB_NAME -c \
@@ -210,14 +230,14 @@ echo "VOTES_AGREGATS"
 echo "=============================================="
 
 echo "Copying JSON to container..."
-docker cp $TABLES_DIR/votesAgregats.json $DB_CONTAINER:/votesAgregats.json
+docker cp $TABLES_DIR/$VOTES_AGREGATS_JSON $DB_CONTAINER:/$VOTES_AGREGATS_JSON
 
 echo "Verifying file..."
-docker exec -it $DB_CONTAINER ls -lh /votesAgregats.json
+docker exec -it $DB_CONTAINER ls -lh //$VOTES_AGREGATS_JSON
 
 echo "Importing to raw table..."
 docker exec -it $DB_CONTAINER psql -U $DB_USER -d $DB_NAME -c \
-  "INSERT INTO votes_agregats_raw (data) SELECT elem FROM jsonb_array_elements(pg_read_file('/votesAgregats.json')::jsonb) AS elem;"
+  "INSERT INTO votes_agregats_raw (data) SELECT elem FROM jsonb_array_elements(pg_read_file('//$VOTES_AGREGATS_JSON')::jsonb) AS elem;"
 
 echo "Checking raw count..."
 docker exec -it $DB_CONTAINER psql -U $DB_USER -d $DB_NAME -c \
@@ -247,14 +267,14 @@ echo "VOTES_GROUPES_AGREGATS"
 echo "=============================================="
 
 echo "Copying JSON to container..."
-docker cp $TABLES_DIR/votesGroupesAgregats.json $DB_CONTAINER:/votesGroupesAgregats.json
+docker cp $TABLES_DIR/$VOTES_GROUPES_AGREGATS_JSON $DB_CONTAINER:/$VOTES_GROUPES_AGREGATS_JSON
 
 echo "Verifying file..."
-docker exec -it $DB_CONTAINER ls -lh /votesGroupesAgregats.json
+docker exec -it $DB_CONTAINER ls -lh //$VOTES_GROUPES_AGREGATS_JSON
 
 echo "Importing to raw table..."
 docker exec -it $DB_CONTAINER psql -U $DB_USER -d $DB_NAME -c \
-  "INSERT INTO votes_groupes_agregats_raw (data) SELECT elem FROM jsonb_array_elements(pg_read_file('/votesGroupesAgregats.json')::jsonb) AS elem;"
+  "INSERT INTO votes_groupes_agregats_raw (data) SELECT elem FROM jsonb_array_elements(pg_read_file('//$VOTES_GROUPES_AGREGATS_JSON')::jsonb) AS elem;"
 
 echo "Checking raw count..."
 docker exec -it $DB_CONTAINER psql -U $DB_USER -d $DB_NAME -c \
@@ -283,22 +303,30 @@ echo "=============================================="
 
 echo "Cleaning JSON files from container"
 docker exec -it $DB_CONTAINER rm -f \
-  /deputes.json \
-  /groupes.json \
-  /votes.json \
-  /votesGroupes.json \
-  /votesDeputes.json \
-  /votesAgregats.json \
-  /votesGroupesAgregats.json
+  //$DEPUTES_JSON \
+  //$GROUPES_JSON \
+  //$VOTES_JSON \
+  //$VOTES_GROUPES_JSON \
+  //$VOTES_DEPUTES_JSON \
+  //$VOTES_AGREGATS_JSON \
+  //$VOTES_GROUPES_AGREGATS_JSON
 
-read -p "Do you want to drop raw tables? (y/n) " -n 1 -r
-echo
-if [[ $REPLY =~ ^[Yy]$ ]]
-then
+if [[ "$AUTO_CLEANUP" == true ]]; then
+    echo "🤖 Auto cleanup enabled - dropping raw tables..."
     docker exec -it $DB_CONTAINER psql -U $DB_USER -d $DB_NAME -c \
       "DROP TABLE IF EXISTS deputes_raw, groupes_parlementaires_raw, votes_raw, votes_groupes_raw,
        votes_deputes_raw, votes_agregats_raw, votes_groupes_agregats_raw CASCADE;"
     echo "✓ Raw tables dropped"
+else
+    read -p "Do you want to drop raw tables? (y/n) " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]
+    then
+        docker exec -it $DB_CONTAINER psql -U $DB_USER -d $DB_NAME -c \
+          "DROP TABLE IF EXISTS deputes_raw, groupes_parlementaires_raw, votes_raw, votes_groupes_raw,
+           votes_deputes_raw, votes_agregats_raw, votes_groupes_agregats_raw CASCADE;"
+        echo "✓ Raw tables dropped"
+    fi
 fi
 echo ""
 

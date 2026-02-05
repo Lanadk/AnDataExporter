@@ -46,8 +46,3 @@ export class MultiDirectorySource implements FileSource {
         return allFiles;
     }
 }
-
-class CustomSource implements FileSource {
-    constructor(private resolver: () => string[]) {}
-    getFiles() { return this.resolver(); }
-}

@@ -1,9 +1,9 @@
 import https from "https";
 import fs from "fs";
 import path from "path";
-import {ensureDir, getTargetPath} from "../utils/utils";
-import {unzipFile} from "../utils/unzip";
 import {items} from "./item";
+import {ensureDir, getTargetPath} from "../../../utils/utils";
+import {unzipFile} from "../../../utils/unzip";
 
 // Téléchargement d’un fichier
 async function downloadFile(url: string, dest: string) {

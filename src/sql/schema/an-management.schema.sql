@@ -28,7 +28,7 @@ INSERT INTO ref_data_domains (code, description)
 VALUES ('acteurs', 'Députés, mandats, organes'),
        ('scrutins', 'Votes et scrutins publics');
 
-
+-- Table de parametrage des sources de données de l'AN
 CREATE TABLE param_data_sources
 (
     id             SERIAL PRIMARY KEY,
@@ -41,6 +41,7 @@ CREATE TABLE param_data_sources
     UNIQUE (domain_id, legislature_id)
 );
 
+-- Table de monitoring des fichiers téléchargés
 CREATE TABLE data_download
 (
     id               SERIAL PRIMARY KEY,

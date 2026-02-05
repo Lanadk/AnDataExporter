@@ -1,17 +1,35 @@
 #!/usr/bin/env bash
 
+set -e  # Exit on error
+
+# SOURCING
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/paths.sh"
+
+# Gestion du paramètre --auto-cleanup
+AUTO_CLEANUP=false
+if [[ "$1" == "--auto-cleanup" ]]; then
+    AUTO_CLEANUP=true
+    echo "ℹ️  Auto cleanup mode enabled"
+fi
+
+# Check des repertoires
+for dir in "$SCHEMA_DIR" "$TABLES_DIR"; do
+  if [ ! -d "$dir" ]; then
+    echo "❌ Missing directory: $dir"
+    exit 1
+  fi
+done
+
 # ==============================================================================
 # ACTEURS - IMPORT COMPLET (LOCAL VERSION)
 # ==============================================================================
-
-set -e  # Exit on error
-export MSYS_NO_PATHCONV=1  # Désactive la conversion de chemin Windows
-
-DB_CONTAINER="deputedex-db"
-DB_USER="dev"
-DB_NAME="deputedex"
-TABLES_DIR="../../exports/tables"
-SCHEMA_DIR="../../sql/schema"
+SCHEMA_NAME="acteurs.schema.sql"
+ACTEURS_JSON="acteurs.json"
+ACTEURS_ADRESSES_POSTALES_JSON="acteurs_adresses_postales.json"
+ACTEURS_ADRESSES_MAILS_JSON="acteurs_adresses_mails.json"
+ACTEURS_RESEAUX_SOCIAUX_JSON="acteurs_reseaux_sociaux.json"
+ACTEURS_TELEPHONES_JSON="acteurs_telephones.json"
 
 echo "=============================================="
 echo "ACTEURS IMPORT SCRIPT"
@@ -21,8 +39,8 @@ echo ""
 # ==============================================================================
 # STEP 1: Import Schema
 # ==============================================================================
-echo "Step 1: Importing schema..."
-cat $SCHEMA_DIR/acteurs-schema.sql | docker exec -i $DB_CONTAINER psql -U $DB_USER -d $DB_NAME
+echo "Importing schema..."
+cat $SCHEMA_DIR/$SCHEMA_NAME | docker exec -i $DB_CONTAINER psql -U $DB_USER -d $DB_NAME
 echo "✓ Schema imported"
 echo ""
 
@@ -34,14 +52,14 @@ echo "ACTEURS (main table)"
 echo "=============================================="
 
 echo "Copying JSON to container..."
-docker cp $TABLES_DIR/acteurs.json $DB_CONTAINER:/acteurs.json
+docker cp $TABLES_DIR/$ACTEURS_JSON $DB_CONTAINER:/$ACTEURS_JSON
 
 echo "Verifying file..."
-docker exec -it $DB_CONTAINER ls -lh /acteurs.json
+docker exec -it $DB_CONTAINER ls -lh //$ACTEURS_JSON
 
 echo "Importing to raw table..."
 docker exec -it $DB_CONTAINER psql -U $DB_USER -d $DB_NAME -c \
-  "INSERT INTO acteurs_raw (data) SELECT elem FROM jsonb_array_elements(pg_read_file('/acteurs.json')::jsonb) AS elem;"
+  "INSERT INTO acteurs_raw (data) SELECT elem FROM jsonb_array_elements(pg_read_file('//$ACTEURS_JSON')::jsonb) AS elem;"
 
 echo "Checking raw count..."
 docker exec -it $DB_CONTAINER psql -U $DB_USER -d $DB_NAME -c \
@@ -72,14 +90,14 @@ echo "ACTEURS_ADRESSES_POSTALES"
 echo "=============================================="
 
 echo "Copying JSON to container..."
-docker cp $TABLES_DIR/acteurs_adresses_postales.json $DB_CONTAINER:/acteurs_adresses_postales.json
+docker cp $TABLES_DIR/$ACTEURS_ADRESSES_POSTALES_JSON $DB_CONTAINER:/$ACTEURS_ADRESSES_POSTALES_JSON
 
 echo "Verifying file..."
-docker exec -it $DB_CONTAINER ls -lh /acteurs_adresses_postales.json
+docker exec -it $DB_CONTAINER ls -lh //$ACTEURS_ADRESSES_POSTALES_JSON
 
 echo "Importing to raw table..."
 docker exec -it $DB_CONTAINER psql -U $DB_USER -d $DB_NAME -c \
-  "INSERT INTO acteurs_adresses_postales_raw (data) SELECT elem FROM jsonb_array_elements(pg_read_file('/acteurs_adresses_postales.json')::jsonb) AS elem;"
+  "INSERT INTO acteurs_adresses_postales_raw (data) SELECT elem FROM jsonb_array_elements(pg_read_file('//$ACTEURS_ADRESSES_POSTALES_JSON')::jsonb) AS elem;"
 
 echo "Checking raw count..."
 docker exec -it $DB_CONTAINER psql -U $DB_USER -d $DB_NAME -c \
@@ -108,14 +126,14 @@ echo "ACTEURS_ADRESSES_MAILS"
 echo "=============================================="
 
 echo "Copying JSON to container..."
-docker cp $TABLES_DIR/acteurs_adresses_mails.json $DB_CONTAINER:/acteurs_adresses_mails.json
+docker cp $TABLES_DIR/$ACTEURS_ADRESSES_MAILS_JSON $DB_CONTAINER:/$ACTEURS_ADRESSES_MAILS_JSON
 
 echo "Verifying file..."
-docker exec -it $DB_CONTAINER ls -lh /acteurs_adresses_mails.json
+docker exec -it $DB_CONTAINER ls -lh //$ACTEURS_ADRESSES_MAILS_JSON
 
 echo "Importing to raw table..."
 docker exec -it $DB_CONTAINER psql -U $DB_USER -d $DB_NAME -c \
-  "INSERT INTO acteurs_adresses_mails_raw (data) SELECT elem FROM jsonb_array_elements(pg_read_file('/acteurs_adresses_mails.json')::jsonb) AS elem;"
+  "INSERT INTO acteurs_adresses_mails_raw (data) SELECT elem FROM jsonb_array_elements(pg_read_file('//$ACTEURS_ADRESSES_MAILS_JSON')::jsonb) AS elem;"
 
 echo "Checking raw count..."
 docker exec -it $DB_CONTAINER psql -U $DB_USER -d $DB_NAME -c \
@@ -142,14 +160,14 @@ echo "ACTEURS_RESEAUX_SOCIAUX"
 echo "=============================================="
 
 echo "Copying JSON to container..."
-docker cp $TABLES_DIR/acteurs_reseaux_sociaux.json $DB_CONTAINER:/acteurs_reseaux_sociaux.json
+docker cp $TABLES_DIR/$ACTEURS_RESEAUX_SOCIAUX_JSON $DB_CONTAINER:/$ACTEURS_RESEAUX_SOCIAUX_JSON
 
 echo "Verifying file..."
-docker exec -it $DB_CONTAINER ls -lh /acteurs_reseaux_sociaux.json
+docker exec -it $DB_CONTAINER ls -lh //$ACTEURS_RESEAUX_SOCIAUX_JSON
 
 echo "Importing to raw table..."
 docker exec -it $DB_CONTAINER psql -U $DB_USER -d $DB_NAME -c \
-  "INSERT INTO acteurs_reseaux_sociaux_raw (data) SELECT elem FROM jsonb_array_elements(pg_read_file('/acteurs_reseaux_sociaux.json')::jsonb) AS elem;"
+  "INSERT INTO acteurs_reseaux_sociaux_raw (data) SELECT elem FROM jsonb_array_elements(pg_read_file('//$ACTEURS_RESEAUX_SOCIAUX_JSON')::jsonb) AS elem;"
 
 echo "Checking raw count..."
 docker exec -it $DB_CONTAINER psql -U $DB_USER -d $DB_NAME -c \
@@ -177,14 +195,14 @@ echo "ACTEURS_TELEPHONES"
 echo "=============================================="
 
 echo "Copying JSON to container..."
-docker cp $TABLES_DIR/acteurs_telephones.json $DB_CONTAINER:/acteurs_telephones.json
+docker cp $TABLES_DIR/$ACTEURS_TELEPHONES_JSON $DB_CONTAINER:/$ACTEURS_TELEPHONES_JSON
 
 echo "Verifying file..."
-docker exec -it $DB_CONTAINER ls -lh /acteurs_telephones.json
+docker exec -it $DB_CONTAINER ls -lh //$ACTEURS_TELEPHONES_JSON
 
 echo "Importing to raw table..."
 docker exec -it $DB_CONTAINER psql -U $DB_USER -d $DB_NAME -c \
-  "INSERT INTO acteurs_telephones_raw (data) SELECT elem FROM jsonb_array_elements(pg_read_file('/acteurs_telephones.json')::jsonb) AS elem;"
+  "INSERT INTO acteurs_telephones_raw (data) SELECT elem FROM jsonb_array_elements(pg_read_file('//$ACTEURS_TELEPHONES_JSON')::jsonb) AS elem;"
 
 echo "Checking raw count..."
 docker exec -it $DB_CONTAINER psql -U $DB_USER -d $DB_NAME -c \
@@ -214,19 +232,26 @@ echo "=============================================="
 
 echo "Cleaning JSON files from container"
 docker exec -it $DB_CONTAINER rm -f \
-  /acteurs.json \
-  /acteurs_adresses_postales.json \
-  /acteurs_adresses_mails.json \
-  /acteurs_reseaux_sociaux.json \
-  /acteurs_telephones.json
+  //$ACTEURS_JSON \
+  //$ACTEURS_ADRESSES_POSTALES_JSON \
+  //$ACTEURS_ADRESSES_MAILS_JSON \
+  //$ACTEURS_RESEAUX_SOCIAUX_JSON \
+  //$ACTEURS_TELEPHONES_JSON
 
-read -p "Do you want to drop raw tables? (y/n) " -n 1 -r
-echo
-if [[ $REPLY =~ ^[Yy]$ ]]
-then
+if [[ "$AUTO_CLEANUP" == true ]]; then
+    echo "🤖 Auto cleanup enabled - dropping raw tables..."
     docker exec -it $DB_CONTAINER psql -U $DB_USER -d $DB_NAME -c \
       "DROP TABLE IF EXISTS acteurs_raw, acteurs_adresses_postales_raw, acteurs_adresses_mails_raw, acteurs_reseaux_sociaux_raw, acteurs_telephones_raw CASCADE;"
     echo "✓ Raw tables dropped"
+else
+    read -p "Do you want to drop raw tables? (y/n) " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]
+    then
+        docker exec -it $DB_CONTAINER psql -U $DB_USER -d $DB_NAME -c \
+          "DROP TABLE IF EXISTS acteurs_raw, acteurs_adresses_postales_raw, acteurs_adresses_mails_raw, acteurs_reseaux_sociaux_raw, acteurs_telephones_raw CASCADE;"
+        echo "✓ Raw tables dropped"
+    fi
 fi
 echo ""
 
