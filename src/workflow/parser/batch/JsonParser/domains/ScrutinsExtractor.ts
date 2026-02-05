@@ -4,32 +4,32 @@ import {Extractor} from "../../BatchProcessor";
 import {
     Depute,
     GroupeParlementaire,
-    Vote,
-    VoteAgregat,
+    Scrutin,
+    ScrutinAgregat,
     VoteDepute,
-    VoteGroupe,
-    VoteGroupeAgregat
-} from "../../types/IVotes";
+    ScrutinGroupe,
+    ScrutinGroupeAgregat
+} from "../../types/IScrutins";
 
 interface DatabaseExport {
     deputes: Depute[];
     groupes: GroupeParlementaire[];
-    votes: Vote[];
-    votesGroupes: VoteGroupe[];
+    scrutins: Scrutin[];
+    scrutinsGroupes: ScrutinGroupe[];
     votesDeputes: VoteDepute[];
-    votesAgregats: VoteAgregat[];
-    votesGroupesAgregats: VoteGroupeAgregat[];
+    scrutinsAgregats: ScrutinAgregat[];
+    scrutinsGroupesAgregat: ScrutinGroupeAgregat[];
 }
 
 
-export class VotesExtractor implements Extractor {
+export class ScrutinsExtractor implements Extractor {
     private deputes: Set<string> = new Set();
     private groupes: Set<string> = new Set();
-    private votes: Vote[] = [];
-    private votesGroupes: VoteGroupe[] = [];
+    private scrutins: Scrutin[] = [];
+    private scrutinsGroupes: ScrutinGroupe[] = [];
     private votesDeputes: VoteDepute[] = [];
-    private votesAgregats: VoteAgregat[] = [];
-    private votesGroupesAgregats: VoteGroupeAgregat[] = [];
+    private scrutinsAgregats: ScrutinAgregat[] = [];
+    private scrutinsGroupesAgregats: ScrutinGroupeAgregat[] = [];
     private errors: Array<{file: string, error: string}> = [];
 
     loadFile(filePath: string): any {
@@ -53,11 +53,11 @@ export class VotesExtractor implements Extractor {
     // Implem
     getTables(): Record<string, any[]> {
         return {
-            votes: this.votes,
-            votesGroupes: this.votesGroupes,
+            scrutins: this.scrutins,
+            scrutinsGroupes: this.scrutinsGroupes,
             votesDeputes: this.votesDeputes,
-            votesAgregats: this.votesAgregats,
-            votesGroupesAgregats: this.votesGroupesAgregats,
+            scrutinsAgregats: this.scrutinsAgregats,
+            scrutinsGroupesAgregats: this.scrutinsGroupesAgregats,
             groupes: Array.from(this.groupes).map(id => ({
                 id,
                 nom: null
@@ -79,24 +79,24 @@ export class VotesExtractor implements Extractor {
         }
 
         // Extract scrutin metadata
-        const scrutinData: Vote = {
+        const scrutinData: Scrutin = {
             uid: scrutin.uid,
             numero: scrutin.numero || '',
             legislature: scrutin.legislature || '',
-            date_vote: scrutin.dateScrutin || '',
+            date_scrutin: scrutin.dateScrutin || '',
             titre: scrutin.titre || scrutin.objet?.libelle || '',
-            type_vote_code: scrutin.typeVote?.codeTypeVote || null,
-            type_vote_libelle: scrutin.typeVote?.libelleTypeVote || null,
+            type_scrutin_code: scrutin.typeVote?.codeTypeVote || null,
+            type_scrutin_libelle: scrutin.typeVote?.libelleTypeVote || null,
             type_majorite: scrutin.typeVote?.typeMajorite || null,
             resultat_code: scrutin.sort?.code || null,
             resultat_libelle: scrutin.sort?.libelle || null
         };
-        this.votes.push(scrutinData);
+        this.scrutins.push(scrutinData);
 
         // Extract source aggregates
         if (scrutin.syntheseVote) {
-            const agregats: VoteAgregat = {
-                vote_uid: scrutin.uid,
+            const agregats: ScrutinAgregat = {
+                scrutin_uid: scrutin.uid,
                 nombre_votants: parseInt(scrutin.syntheseVote.nombreVotants) || 0,
                 suffrages_exprimes: parseInt(scrutin.syntheseVote.suffragesExprimes) || 0,
                 suffrages_requis: parseInt(scrutin.syntheseVote.nbrSuffragesRequis) || 0,
@@ -106,11 +106,11 @@ export class VotesExtractor implements Extractor {
                 total_non_votants: parseInt(scrutin.syntheseVote.decompte?.nonVotants) || 0,
                 total_non_votants_volontaires: parseInt(scrutin.syntheseVote.decompte?.nonVotantsVolontaires) || 0
             };
-            this.votesAgregats.push(agregats);
+            this.scrutinsAgregats.push(agregats);
         }
 
-        // Extract groups and votes
-        const ventilation = scrutin.ventilationVotes || scrutin.votes || scrutin.groupes;
+        // Extract groups and scrutins
+        const ventilation = scrutin.ventilationVotes || scrutin.scrutins || scrutin.groupes;
         if (ventilation) {
             const organe = ventilation.organe || ventilation;
             const groupsData = organe.groupes?.groupe || organe.groupe || [];
@@ -123,18 +123,18 @@ export class VotesExtractor implements Extractor {
                 this.groupes.add(group.organeRef);
 
                 // Extract scrutin_groupe
-                const scrutinGroupe: VoteGroupe = {
-                    vote_uid: scrutin.uid,
+                const scrutinGroupe: ScrutinGroupe = {
+                    scrutin_uid: scrutin.uid,
                     groupe_id: group.organeRef,
                     nombre_membres: parseInt(group.nombreMembresGroupe) || 0,
                     position_majoritaire: group.vote?.positionMajoritaire || ''
                 };
-                this.votesGroupes.push(scrutinGroupe);
+                this.scrutinsGroupes.push(scrutinGroupe);
 
                 // Extract groupe aggregates source
                 if (group.vote?.decompteVoix) {
-                    const groupeAgregats: VoteGroupeAgregat = {
-                        vote_uid: scrutin.uid,
+                    const groupeAgregats: ScrutinGroupeAgregat = {
+                        scrutin_uid: scrutin.uid,
                         groupe_id: group.organeRef,
                         pour: parseInt(group.vote.decompteVoix.pour) || 0,
                         contre: parseInt(group.vote.decompteVoix.contre) || 0,
@@ -142,10 +142,10 @@ export class VotesExtractor implements Extractor {
                         non_votants: parseInt(group.vote.decompteVoix.nonVotants) || 0,
                         non_votants_volontaires: parseInt(group.vote.decompteVoix.nonVotantsVolontaires) || 0
                     };
-                    this.votesGroupesAgregats.push(groupeAgregats);
+                    this.scrutinsGroupesAgregats.push(groupeAgregats);
                 }
 
-                // Extract individual votes
+                // Extract individual scrutins
                 const decompteNominatif = group.vote?.decompteNominatif;
                 if (decompteNominatif) {
                     // Pour
@@ -174,7 +174,7 @@ export class VotesExtractor implements Extractor {
             this.deputes.add(voter.acteurRef);
 
             const vote: VoteDepute = {
-                vote_uid: scrutinUid,
+                scrutin_uid: scrutinUid,
                 depute_id: voter.acteurRef,
                 groupe_id: groupeId,
                 mandat_ref: voter.mandatRef || '',
@@ -196,35 +196,14 @@ export class VotesExtractor implements Extractor {
         const exportData: DatabaseExport = {
             deputes: deputesArray,
             groupes: groupesArray,
-            votes: this.votes,
-            votesGroupes: this.votesGroupes,
+            scrutins: this.scrutins,
+            scrutinsGroupes: this.scrutinsGroupes,
             votesDeputes: this.votesDeputes,
-            votesAgregats: this.votesAgregats,
-            votesGroupesAgregats: this.votesGroupesAgregats
+            scrutinsAgregats: this.scrutinsAgregats,
+            scrutinsGroupesAgregat: this.scrutinsGroupesAgregats
         };
 
         fs.writeFileSync(outputPath, JSON.stringify(exportData, null, 2), 'utf-8');
-
-        console.log('='.repeat(50));
-        console.log('EXPORT SUMMARY');
-        console.log('='.repeat(50));
-        console.log(`Deputes:                              ${deputesArray.length}`);
-        console.log(`Groupes parlementaires:               ${groupesArray.length}`);
-        console.log(`Scrutins:                             ${this.votes.length}`);
-        console.log(`Scrutin groupes:                      ${this.votesGroupes.length}`);
-        console.log(`Votes deputes:                        ${this.votesDeputes.length}`);
-        console.log(`Scrutins agregats source:             ${this.votesAgregats.length}`);
-        console.log(`Scrutin groupes agregats source:      ${this.votesGroupesAgregats.length}`);
-        console.log('='.repeat(50));
-        console.log(`\nExported to: ${outputPath}`);
-        console.log('\n'.repeat(2));
-
-        if (this.errors.length > 0) {
-            console.log(`\nErrors: ${this.errors.length} files failed`);
-            const errorsPath = outputPath.replace('.json', '-errors.json');
-            fs.writeFileSync(errorsPath, JSON.stringify(this.errors, null, 2), 'utf-8');
-            console.log(`Error details: ${errorsPath}`);
-        }
     }
 
     exportSeparateFiles(outputDir: string): void {
@@ -243,61 +222,39 @@ export class VotesExtractor implements Extractor {
         );
 
         fs.writeFileSync(
-            path.join(outputDir, 'groupes_parlementaires.json'),
+            path.join(outputDir, 'groupes.json'),
             JSON.stringify(groupesArray, null, 2),
             'utf-8'
         );
 
         fs.writeFileSync(
             path.join(outputDir, 'scrutins.json'),
-            JSON.stringify(this.votes, null, 2),
+            JSON.stringify(this.scrutins, null, 2),
             'utf-8'
         );
 
         fs.writeFileSync(
-            path.join(outputDir, 'scrutin_groupes.json'),
-            JSON.stringify(this.votesGroupes, null, 2),
+            path.join(outputDir, 'scrutinsGroupes.json'),
+            JSON.stringify(this.scrutinsGroupes, null, 2),
             'utf-8'
         );
 
         fs.writeFileSync(
-            path.join(outputDir, 'votes_deputes.json'),
+            path.join(outputDir, 'votesDeputes.json'),
             JSON.stringify(this.votesDeputes, null, 2),
             'utf-8'
         );
 
         fs.writeFileSync(
-            path.join(outputDir, 'scrutins_agregats_source.json'),
-            JSON.stringify(this.votesAgregats, null, 2),
+            path.join(outputDir, 'scrutinsAgregats.json'),
+            JSON.stringify(this.scrutinsAgregats, null, 2),
             'utf-8'
         );
 
         fs.writeFileSync(
-            path.join(outputDir, 'scrutin_groupes_agregats_source.json'),
-            JSON.stringify(this.votesGroupesAgregats, null, 2),
+            path.join(outputDir, 'scrutinsGroupesAgregats.json'),
+            JSON.stringify(this.scrutinsGroupesAgregats, null, 2),
             'utf-8'
         );
-
-        console.log('='.repeat(50));
-        console.log('EXPORT SUMMARY');
-        console.log('='.repeat(50));
-        console.log(`Deputes:                              ${deputesArray.length}`);
-        console.log(`Groupes parlementaires:               ${groupesArray.length}`);
-        console.log(`Scrutins:                             ${this.votes.length}`);
-        console.log(`Scrutin groupes:                      ${this.votesGroupes.length}`);
-        console.log(`Votes deputes:                        ${this.votesDeputes.length}`);
-        console.log(`Scrutins agregats source:             ${this.votesAgregats.length}`);
-        console.log(`Scrutin groupes agregats source:      ${this.votesGroupesAgregats.length}`);
-        console.log('='.repeat(50));
-        console.log(`\nExported to: ${outputDir}/`);
-        console.log('Files:');
-        console.log('  - deputes.json');
-        console.log('  - groupes_parlementaires.json');
-        console.log('  - scrutins.json');
-        console.log('  - scrutin_groupes.json');
-        console.log('  - votes_deputes.json');
-        console.log('  - scrutins_agregats_source.json');
-        console.log('  - scrutin_groupes_agregats_source.json');
-        console.log('\n'.repeat(2));
     }
 }

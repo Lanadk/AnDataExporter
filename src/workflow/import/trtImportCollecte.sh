@@ -21,7 +21,7 @@ fi
 # ----------------------------------------------------------------------
 SCRIPTS=(
   "$SCRIPT_DIR/scripts/acteurs-import.sh"
-  "$SCRIPT_DIR/scripts/votes-import.sh"
+  "$SCRIPT_DIR/scripts/scrutins-import.sh"
   # ajouter ici les futurs imports
 )
 

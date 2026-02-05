@@ -2,10 +2,10 @@
 
 import * as path from 'path';
 import {
-    votesSourceDirectoryName,
-    completeJsonVotesFileName,
+    scrutinsSourceDirectoryName,
+    completeJsonScrutinsFileName,
 } from "./const";
-import {VotesExtractor} from "../batch/JsonParser/domains/VotesExtractor";
+import {ScrutinsExtractor} from "../batch/JsonParser/domains/ScrutinsExtractor";
 import {runBatch} from "../batch/runBatch";
 import {baseInData, baseOutData, outTableDirectoryName} from "./const";
 
@@ -14,14 +14,14 @@ async function main() {
         path.resolve(__dirname, baseInData),
         path.resolve(__dirname, baseOutData),
         {
-            sourceDir: votesSourceDirectoryName,
-            extractor: new VotesExtractor(),
-            completeFileName: completeJsonVotesFileName,
+            sourceDir: scrutinsSourceDirectoryName,
+            extractor: new ScrutinsExtractor(),
+            completeFileName: completeJsonScrutinsFileName,
             exportTableDir: outTableDirectoryName
         }
     );
 
-    console.log('✓ Votes exportés');
+    console.log('✓ Scrutins exportés');
 }
 
 main().catch(console.error);

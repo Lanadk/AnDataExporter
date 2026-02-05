@@ -25,9 +25,11 @@ export async function runBatch<TExtractor extends Extractor>
     console.log('Starting job')
     await batch.run();
 
-    batch.exportToJSON(
-        path.join(baseExportDir, config.completeFileName)
-    );
+    /*
+        batch.exportToJSON(
+            path.join(baseExportDir, config.completeFileName)
+        );
+    */
 
     batch.exportSeparateFiles(
         path.join(baseExportDir, config.exportTableDir)

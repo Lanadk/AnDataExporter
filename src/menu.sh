@@ -21,11 +21,11 @@ unit_job_menu() {
         echo "=============================================="
         echo " "
         echo "1) Download Acteurs"
-        echo "2) Download Votes"
+        echo "2) Download Scrutins"
         echo "3) Parse Acteurs"
-        echo "4) Parse Votes"
+        echo "4) Parse Scrutins"
         echo "5) Import Acteurs"
-        echo "6) Import Votes"
+        echo "6) Import Scrutins"
         echo "0) Back to Main Menu"
         echo " "
         echo "=============================================="
@@ -33,11 +33,11 @@ unit_job_menu() {
 
         case $unit_option in
             1) npx ts-node ./download/downloadActeurs.ts ;;
-            2) npx ts-node ./download/downloadVotes.ts ;;
+            2) npx ts-node ./download/downloadScrutins.ts ;;
             3) npx ts-node ./parser/runActeursJob.ts ;;
-            4) npx ts-node ./parser/runVotesJob.ts ;;
+            4) npx ts-node ./parser/runScrutinsJob.ts ;;
             5) ./job/acteurs-import.sh ;;
-            6) ./job/votes-import.sh ;;
+            6) ./job/scrutins-import.sh ;;
             0) return ;;
             *) echo "⚠️ Invalid option, please try again." ;;
         esac

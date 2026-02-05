@@ -6,7 +6,7 @@ async function main() {
     const jobFactory = new JobFactory();
 
     await jobFactory.runActeursParser();
-    await jobFactory.runVotesParser();
+    await jobFactory.runScrutinsParser();
 
     console.log('🎉 Tous les extractors ont terminé !');
 }

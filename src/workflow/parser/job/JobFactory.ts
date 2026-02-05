@@ -3,11 +3,11 @@ import {
     acteursSourceDirectoryName,
     baseInData,
     baseOutData,
-    completeJsonActeursFileName, completeJsonVotesFileName, outTableDirectoryName, votesSourceDirectoryName
+    completeJsonActeursFileName, completeJsonScrutinsFileName, outTableDirectoryName, scrutinsSourceDirectoryName
 } from "./const";
 import {runBatch} from "../batch/runBatch";
 import {ActeursExtractor} from "../batch/JsonParser/domains/ActeursExtractor";
-import {VotesExtractor} from "../batch/JsonParser/domains/VotesExtractor";
+import {ScrutinsExtractor} from "../batch/JsonParser/domains/ScrutinsExtractor";
 
 
 export class JobFactory {
@@ -29,11 +29,11 @@ export class JobFactory {
         });
     }
 
-    async runVotesParser(): Promise<void> {
+    async runScrutinsParser(): Promise<void> {
         return runBatch(this.baseDataDir, this.baseExportDir, {
-            sourceDir: votesSourceDirectoryName,
-            extractor: new VotesExtractor(),
-            completeFileName: completeJsonVotesFileName,
+            sourceDir: scrutinsSourceDirectoryName,
+            extractor: new ScrutinsExtractor(),
+            completeFileName: completeJsonScrutinsFileName,
             exportTableDir: outTableDirectoryName
         });
     }

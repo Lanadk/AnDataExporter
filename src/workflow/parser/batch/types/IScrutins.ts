@@ -7,28 +7,28 @@ export interface GroupeParlementaire {
     nom: string | null;
 }
 
-export interface Vote {
+export interface Scrutin {
     uid: string;
     numero: string;
     legislature: string;
-    date_vote: string;
+    date_scrutin: string;
     titre: string | null;
-    type_vote_code: string | null;
-    type_vote_libelle: string | null;
+    type_scrutin_code: string | null;
+    type_scrutin_libelle: string | null;
     type_majorite: string | null;
     resultat_code: string | null;
     resultat_libelle: string | null;
 }
 
-export interface VoteGroupe {
-    vote_uid: string;
+export interface ScrutinGroupe {
+    scrutin_uid: string;
     groupe_id: string;
     nombre_membres: number;
     position_majoritaire: string;
 }
 
 export interface VoteDepute {
-    vote_uid: string | null;
+    scrutin_uid: string | null;
     depute_id: string | null;
     groupe_id: string | null;
     mandat_ref: string | null;
@@ -37,8 +37,8 @@ export interface VoteDepute {
     par_delegation: boolean | null;
 }
 
-export interface VoteAgregat {
-    vote_uid: string;
+export interface ScrutinAgregat {
+    scrutin_uid: string;
     nombre_votants: number;
     suffrages_exprimes: number;
     suffrages_requis: number;
@@ -49,8 +49,8 @@ export interface VoteAgregat {
     total_non_votants_volontaires: number;
 }
 
-export interface VoteGroupeAgregat {
-    vote_uid: string;
+export interface ScrutinGroupeAgregat {
+    scrutin_uid: string;
     groupe_id: string;
     pour: number;
     contre: number;
