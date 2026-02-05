@@ -18,3 +18,6 @@ export DB_CONTAINER="deputedex-db"
 export DB_USER="dev"
 export DB_NAME="deputedex"
 
+# Paramètres du splitter
+export MAX_JSON_SIZE_MB=150
+export JSON_SPLITTER_TS="$SCRIPT_DIR/json-splitter.ts"
