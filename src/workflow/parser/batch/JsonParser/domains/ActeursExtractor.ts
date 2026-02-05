@@ -12,18 +12,18 @@ import {Extractor} from "../../BatchProcessor";
 
 export interface ActeursExport {
     acteurs: Acteur[];
-    acteurs_adresses_postales: ActeurAdressePostale[];
-    acteurs_adresses_mails: ActeurAdresseMail[];
-    acteurs_reseaux_sociaux: ActeurReseauSocial[];
-    acteurs_telephones: ActeurTelephone[];
+    acteursAdressesPostales: ActeurAdressePostale[];
+    acteursAdressesMails: ActeurAdresseMail[];
+    acteursReseauxSociaux: ActeurReseauSocial[];
+    acteursTelephones: ActeurTelephone[];
 }
 
 export class ActeursExtractor implements Extractor {
     private acteurs: Acteur[] = [];
-    private adressesPostales: ActeurAdressePostale[] = [];
-    private adressesMails: ActeurAdresseMail[] = [];
-    private reseauxSociaux: ActeurReseauSocial[] = [];
-    private telephones: ActeurTelephone[] = [];
+    private acteursAdressesPostales: ActeurAdressePostale[] = [];
+    private acteursAdressesMails: ActeurAdresseMail[] = [];
+    private acteursReseauxSociaux: ActeurReseauSocial[] = [];
+    private acteursTelephones: ActeurTelephone[] = [];
     public errors: Array<{ file: string; error: string }> = [];
 
     loadFile(filePath: string): any {
@@ -47,10 +47,10 @@ export class ActeursExtractor implements Extractor {
     getTables(): Record<string, any[]> {
         return {
             acteurs: this.acteurs,
-            acteurs_adresses_postales: this.adressesPostales,
-            acteurs_adresses_mails: this.adressesMails,
-            acteurs_reseaux_sociaux: this.reseauxSociaux,
-            acteurs_telephones: this.telephones
+            acteursAdressesPostales: this.acteursAdressesPostales,
+            acteursAdressesMails: this.acteursAdressesMails,
+            acteursReseauxSociaux: this.acteursReseauxSociaux,
+            acteursTelephones: this.acteursTelephones
         };
     }
     // Implem
@@ -95,7 +95,7 @@ export class ActeursExtractor implements Extractor {
 
             switch (xsiType) {
                 case 'AdressePostale_Type':
-                    this.adressesPostales.push({
+                    this.acteursAdressesPostales.push({
                         acteur_uid: uid,
                         uid_adresse: adresse.uid || '',
                         type_code: adresse.type || null,
@@ -110,7 +110,7 @@ export class ActeursExtractor implements Extractor {
                     break;
 
                 case 'AdresseMail_Type':
-                    this.adressesMails.push({
+                    this.acteursAdressesMails.push({
                         acteur_uid: uid,
                         uid_adresse: adresse.uid || '',
                         type_code: adresse.type || null,
@@ -128,7 +128,7 @@ export class ActeursExtractor implements Extractor {
                     else if (typeLibelle.includes('linkedin')) plateforme = 'linkedin';
                     else if (typeLibelle.includes('youtube')) plateforme = 'youtube';
 
-                    this.reseauxSociaux.push({
+                    this.acteursReseauxSociaux.push({
                         acteur_uid: uid,
                         uid_adresse: adresse.uid || '',
                         type_code: adresse.type || null,
@@ -140,7 +140,7 @@ export class ActeursExtractor implements Extractor {
                 }
 
                 case 'AdresseTelephonique_Type':
-                    this.telephones.push({
+                    this.acteursTelephones.push({
                         acteur_uid: uid,
                         uid_adresse: adresse.uid || '',
                         type_code: adresse.type || null,
@@ -156,10 +156,10 @@ export class ActeursExtractor implements Extractor {
     exportToJSON(outputPath: string): void {
         const exportData: ActeursExport = {
             acteurs: this.acteurs,
-            acteurs_adresses_postales: this.adressesPostales,
-            acteurs_adresses_mails: this.adressesMails,
-            acteurs_reseaux_sociaux: this.reseauxSociaux,
-            acteurs_telephones: this.telephones
+            acteursAdressesPostales: this.acteursAdressesPostales,
+            acteursAdressesMails: this.acteursAdressesMails,
+            acteursReseauxSociaux: this.acteursReseauxSociaux,
+            acteursTelephones: this.acteursTelephones
         };
         fs.writeFileSync(outputPath, JSON.stringify(exportData, null, 2), 'utf-8');
     }
@@ -168,9 +168,9 @@ export class ActeursExtractor implements Extractor {
         if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
 
         fs.writeFileSync(path.join(outputDir, 'acteurs.json'), JSON.stringify(this.acteurs, null, 2));
-        fs.writeFileSync(path.join(outputDir, 'acteurs_adresses_postales.json'), JSON.stringify(this.adressesPostales, null, 2));
-        fs.writeFileSync(path.join(outputDir, 'acteurs_adresses_mails.json'), JSON.stringify(this.adressesMails, null, 2));
-        fs.writeFileSync(path.join(outputDir, 'acteurs_reseaux_sociaux.json'), JSON.stringify(this.reseauxSociaux, null, 2));
-        fs.writeFileSync(path.join(outputDir, 'acteurs_telephones.json'), JSON.stringify(this.telephones, null, 2));
+        fs.writeFileSync(path.join(outputDir, 'acteursAdressesPostales.json'), JSON.stringify(this.acteursAdressesPostales, null, 2));
+        fs.writeFileSync(path.join(outputDir, 'acteursAdressesMails.json'), JSON.stringify(this.acteursAdressesMails, null, 2));
+        fs.writeFileSync(path.join(outputDir, 'acteursReseauxSociaux.json'), JSON.stringify(this.acteursReseauxSociaux, null, 2));
+        fs.writeFileSync(path.join(outputDir, 'acteursTelephones.json'), JSON.stringify(this.acteursTelephones, null, 2));
     }
 }

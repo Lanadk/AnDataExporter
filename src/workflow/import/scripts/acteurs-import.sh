@@ -26,10 +26,10 @@ done
 # ==============================================================================
 SCHEMA_NAME="acteurs.schema.sql"
 ACTEURS_JSON="acteurs.json"
-ACTEURS_ADRESSES_POSTALES_JSON="acteurs_adresses_postales.json"
-ACTEURS_ADRESSES_MAILS_JSON="acteurs_adresses_mails.json"
-ACTEURS_RESEAUX_SOCIAUX_JSON="acteurs_reseaux_sociaux.json"
-ACTEURS_TELEPHONES_JSON="acteurs_telephones.json"
+ACTEURS_ADRESSES_POSTALES_JSON="acteursAdressesPostales.json"
+ACTEURS_ADRESSES_MAILS_JSON="acteursAdressesMails.json"
+ACTEURS_RESEAUX_SOCIAUX_JSON="acteursReseauxSociaux.json"
+ACTEURS_TELEPHONES_JSON="acteursTelephones.json"
 
 echo "=============================================="
 echo "ACTEURS IMPORT SCRIPT"
