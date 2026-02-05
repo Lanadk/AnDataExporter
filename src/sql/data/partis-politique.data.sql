@@ -1,0 +1,23 @@
+-- Data de reference
+INSERT INTO ref_partis_politiques (groupe_id, libelle, code)
+VALUES ('P0800484', 'Démocrate (MoDem et Indépendants)', 'DEM'),
+       ('P0800526', 'Écologiste - NUPES', 'ECOLO'),
+       ('P0800502', 'Gauche démocrate et républicaine - NUPES', 'GDR-NUPES'),
+       ('P0800514', 'Horizons et apparentés', 'HOR'),
+       ('P0800490', 'La France insoumise - NUPES', 'LFI-NUPES'),
+       ('P0800508', 'Les Républicains', 'LR'),
+       ('P0800532', 'Libertés, Indépendants, Outre-mer et Territoires', 'LIOT'),
+       ('P0800520', 'Rassemblement National', 'RN'),
+       ('P0800538', 'Renaissance', 'RE'),
+       ('P0800496', 'Socialistes et apparentés', 'SOC-A'),
+       ('P0800496', 'Socialistes et apparentés - NUPES', 'SOC'),
+       (NULL, 'Ensemble pour la République', 'EPR'),
+       (NULL, 'La France insoumise - NFP', 'LFI-NFP'),
+       (NULL, 'Socialistes et apparentés', 'SOC'),
+       (NULL, 'Droite Républicaine', 'DR'),
+       (NULL, 'Écologiste et Social', 'ECOS'),
+       (NULL, 'Les Démocrates', 'DEM'),
+       (NULL, 'Horizons & Indépendants', 'HOR'),
+       (NULL, 'Gauche Démocrate et Républicaine', 'GDR'),
+       (NULL, 'Union des droites pour la République', 'UDDPLR'),
+       (NULL, 'Non inscrits', 'NI');

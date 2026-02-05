@@ -4,7 +4,6 @@ export interface Depute {
 
 export interface GroupeParlementaire {
     id: string;
-    nom: string | null;
 }
 
 export interface Scrutin {

@@ -211,8 +211,7 @@ export class ScrutinsExtractor implements Extractor {
 
         const deputesArray: Depute[] = Array.from(this.deputes).map(id => ({ id }));
         const groupesArray: GroupeParlementaire[] = Array.from(this.groupes).map(id => ({
-            id,
-            nom: null
+            id
         }));
 
         fs.writeFileSync(

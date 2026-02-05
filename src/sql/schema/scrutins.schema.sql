@@ -60,8 +60,7 @@ CREATE TABLE scrutins_groupes (
                                groupe_id VARCHAR(50) NOT NULL REFERENCES groupes_parlementaires(id),
                                nombre_membres INTEGER,
                                position_majoritaire VARCHAR(50),
-                               created_at TIMESTAMP DEFAULT NOW(),
-                               UNIQUE(scrutin_uid, groupe_id)
+                               created_at TIMESTAMP DEFAULT NOW()
 );
 CREATE TABLE scrutins_groupes_raw (
                                    data JSONB NOT NULL
@@ -76,8 +75,7 @@ CREATE TABLE votes_deputes (
                                position VARCHAR(20) NOT NULL,
                                cause_position VARCHAR(10),
                                par_delegation BOOLEAN,
-                               created_at TIMESTAMP DEFAULT NOW(),
-                               UNIQUE(scrutin_uid, depute_id)
+                               created_at TIMESTAMP DEFAULT NOW()
 );
 CREATE TABLE votes_deputes_raw (
                                    data JSONB NOT NULL
@@ -109,8 +107,7 @@ CREATE TABLE scrutins_groupes_agregats (
                                         abstentions INTEGER,
                                         non_votants INTEGER,
                                         non_votants_volontaires INTEGER,
-                                        created_at TIMESTAMP DEFAULT NOW(),
-                                        UNIQUE(scrutin_uid, groupe_id)
+                                        created_at TIMESTAMP DEFAULT NOW()
 );
 CREATE TABLE scrutins_groupes_agregats_raw (
                                             data JSONB NOT NULL

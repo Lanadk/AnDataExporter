@@ -85,7 +85,7 @@ CREATE TABLE acteurs_telephones (
                                     type_code VARCHAR(10),
                                     type_libelle VARCHAR(255),
                                     adresse_rattachement VARCHAR(50),
-                                    numero VARCHAR(50),
+                                    numero VARCHAR(100),
                                     created_at TIMESTAMP DEFAULT NOW()
 );
 CREATE TABLE acteurs_telephones_raw (
