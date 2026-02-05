@@ -14,7 +14,7 @@ yarn-error.log*
 .idea
 package-lock.json
 
-
 src/data/**/*.json
-src/exports
-src/sql/data/
+src/data/**/*.zip
+
+
