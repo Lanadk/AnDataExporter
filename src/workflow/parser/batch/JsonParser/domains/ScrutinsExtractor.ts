@@ -11,20 +11,9 @@ import {
     ScrutinGroupeAgregat
 } from "../../types/IScrutins";
 
-interface DatabaseExport {
-    deputes: Depute[];
-    groupes: GroupeParlementaire[];
-    scrutins: Scrutin[];
-    scrutinsGroupes: ScrutinGroupe[];
-    votesDeputes: VoteDepute[];
-    scrutinsAgregats: ScrutinAgregat[];
-    scrutinsGroupesAgregat: ScrutinGroupeAgregat[];
-}
-
-
 export class ScrutinsExtractor implements Extractor {
-    private deputes: Set<string> = new Set();
-    private groupes: Set<string> = new Set();
+    private deputes: Depute[] = [];
+    private groupes: GroupeParlementaire[] = [];
     private scrutins: Scrutin[] = [];
     private scrutinsGroupes: ScrutinGroupe[] = [];
     private votesDeputes: VoteDepute[] = [];
@@ -58,11 +47,8 @@ export class ScrutinsExtractor implements Extractor {
             votesDeputes: this.votesDeputes,
             scrutinsAgregats: this.scrutinsAgregats,
             scrutinsGroupesAgregats: this.scrutinsGroupesAgregats,
-            groupes: Array.from(this.groupes).map(id => ({
-                id,
-                nom: null
-            })),
-            deputes: Array.from(this.deputes).map(id => ({ id }))
+            groupes: this.groupes,
+            deputes: this.deputes
         };
     }
 
@@ -120,7 +106,7 @@ export class ScrutinsExtractor implements Extractor {
                 if (!group || !group.organeRef) continue;
 
                 // Register groupe
-                this.groupes.add(group.organeRef);
+                this.groupes.push(group.organeRef);
 
                 // Extract scrutin_groupe
                 const scrutinGroupe: ScrutinGroupe = {
@@ -171,7 +157,7 @@ export class ScrutinsExtractor implements Extractor {
             if (!voter.acteurRef) continue;
 
             // Register depute
-            this.deputes.add(voter.acteurRef);
+            this.deputes.push(voter.acteurRef);
 
             const vote: VoteDepute = {
                 scrutin_uid: scrutinUid,
@@ -184,76 +170,5 @@ export class ScrutinsExtractor implements Extractor {
             };
             this.votesDeputes.push(vote);
         }
-    }
-
-    exportToJSON(outputPath: string): void {
-        const deputesArray: Depute[] = Array.from(this.deputes).map(id => ({ id }));
-        const groupesArray: GroupeParlementaire[] = Array.from(this.groupes).map(id => ({
-            id,
-            nom: null
-        }));
-
-        const exportData: DatabaseExport = {
-            deputes: deputesArray,
-            groupes: groupesArray,
-            scrutins: this.scrutins,
-            scrutinsGroupes: this.scrutinsGroupes,
-            votesDeputes: this.votesDeputes,
-            scrutinsAgregats: this.scrutinsAgregats,
-            scrutinsGroupesAgregat: this.scrutinsGroupesAgregats
-        };
-
-        fs.writeFileSync(outputPath, JSON.stringify(exportData, null, 2), 'utf-8');
-    }
-
-    exportSeparateFiles(outputDir: string): void {
-        if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
-
-        const deputesArray: Depute[] = Array.from(this.deputes).map(id => ({ id }));
-        const groupesArray: GroupeParlementaire[] = Array.from(this.groupes).map(id => ({
-            id
-        }));
-
-        fs.writeFileSync(
-            path.join(outputDir, 'deputes.json'),
-            JSON.stringify(deputesArray, null, 2),
-            'utf-8'
-        );
-
-        fs.writeFileSync(
-            path.join(outputDir, 'groupes.json'),
-            JSON.stringify(groupesArray, null, 2),
-            'utf-8'
-        );
-
-        fs.writeFileSync(
-            path.join(outputDir, 'scrutins.json'),
-            JSON.stringify(this.scrutins, null, 2),
-            'utf-8'
-        );
-
-        fs.writeFileSync(
-            path.join(outputDir, 'scrutinsGroupes.json'),
-            JSON.stringify(this.scrutinsGroupes, null, 2),
-            'utf-8'
-        );
-
-        fs.writeFileSync(
-            path.join(outputDir, 'votesDeputes.json'),
-            JSON.stringify(this.votesDeputes, null, 2),
-            'utf-8'
-        );
-
-        fs.writeFileSync(
-            path.join(outputDir, 'scrutinsAgregats.json'),
-            JSON.stringify(this.scrutinsAgregats, null, 2),
-            'utf-8'
-        );
-
-        fs.writeFileSync(
-            path.join(outputDir, 'scrutinsGroupesAgregats.json'),
-            JSON.stringify(this.scrutinsGroupesAgregats, null, 2),
-            'utf-8'
-        );
     }
 }

@@ -9,15 +9,6 @@ import {
 } from "../../types/IActeurs";
 import {Extractor} from "../../BatchProcessor";
 
-
-export interface ActeursExport {
-    acteurs: Acteur[];
-    acteursAdressesPostales: ActeurAdressePostale[];
-    acteursAdressesMails: ActeurAdresseMail[];
-    acteursReseauxSociaux: ActeurReseauSocial[];
-    acteursTelephones: ActeurTelephone[];
-}
-
 export class ActeursExtractor implements Extractor {
     private acteurs: Acteur[] = [];
     private acteursAdressesPostales: ActeurAdressePostale[] = [];
@@ -151,26 +142,5 @@ export class ActeursExtractor implements Extractor {
                     break;
             }
         }
-    }
-
-    exportToJSON(outputPath: string): void {
-        const exportData: ActeursExport = {
-            acteurs: this.acteurs,
-            acteursAdressesPostales: this.acteursAdressesPostales,
-            acteursAdressesMails: this.acteursAdressesMails,
-            acteursReseauxSociaux: this.acteursReseauxSociaux,
-            acteursTelephones: this.acteursTelephones
-        };
-        fs.writeFileSync(outputPath, JSON.stringify(exportData, null, 2), 'utf-8');
-    }
-
-    exportSeparateFiles(outputDir: string): void {
-        if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
-
-        fs.writeFileSync(path.join(outputDir, 'acteurs.json'), JSON.stringify(this.acteurs, null, 2));
-        fs.writeFileSync(path.join(outputDir, 'acteursAdressesPostales.json'), JSON.stringify(this.acteursAdressesPostales, null, 2));
-        fs.writeFileSync(path.join(outputDir, 'acteursAdressesMails.json'), JSON.stringify(this.acteursAdressesMails, null, 2));
-        fs.writeFileSync(path.join(outputDir, 'acteursReseauxSociaux.json'), JSON.stringify(this.acteursReseauxSociaux, null, 2));
-        fs.writeFileSync(path.join(outputDir, 'acteursTelephones.json'), JSON.stringify(this.acteursTelephones, null, 2));
     }
 }
