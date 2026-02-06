@@ -7,6 +7,9 @@ datasource db {
   provider = "postgresql"
 }
 
+// ============================================
+// AN - MANAGEMENT
+// ============================================
 model ParamLegislature {
   id        Int       @id @default(autoincrement())
   number    Int       @unique
@@ -22,12 +25,10 @@ model ParamLegislature {
 }
 
 model ParamCurrentLegislature {
-  id            Int      @id @default(autoincrement())
-  legislatureId Int      @map("legislature_id")
-  number        Int      @unique
-  updatedAt     DateTime @default(now()) @updatedAt @map("updated_at")
-
-  legislature ParamLegislature @relation(fields: [legislatureId], references: [id])
+  legislatureId Int              @id @map("legislature_id")
+  number        Int
+  updatedAt     DateTime         @default(now()) @updatedAt @map("updated_at")
+  legislature   ParamLegislature @relation(fields: [legislatureId], references: [id])
 
   @@map("param_current_legislatures")
 }
@@ -73,4 +74,226 @@ model MonitorDataDownload {
 
   @@unique([sourceId])
   @@map("monitor_data_download")
+}
+
+// ============================================
+// ACTEURS
+// ============================================
+model Acteurs {
+  uid                   String    @id @db.VarChar(50)
+  civilite              String?   @db.VarChar(10)
+  prenom                String?   @db.VarChar(100)
+  nom                   String?   @db.VarChar(255)
+  nom_alpha             String?   @db.VarChar(255)
+  trigramme             String?   @db.VarChar(10)
+  date_naissance        DateTime? @db.Date
+  ville_naissance       String?   @db.VarChar(255)
+  departement_naissance String?   @db.VarChar(255)
+  pays_naissance        String?   @db.VarChar(255)
+  date_deces            DateTime? @db.Date
+  profession_libelle    String?   @db.VarChar(255)
+  profession_categorie  String?   @db.VarChar(255)
+  profession_famille    String?   @db.VarChar(255)
+  uri_hatvp             String?   @db.Text
+  created_at            DateTime  @default(now()) @db.Timestamp(6)
+
+  adressesPostales ActeursAdressesPostales[]
+  adressesMails    ActeursAdressesMails[]
+  reseauxSociaux   ActeursReseauxSociaux[]
+  telephones       ActeursTelephones[]
+
+  @@map("acteurs")
+}
+
+model ActeursAdressesPostales {
+  id                 Int      @id @default(autoincrement())
+  acteur_uid         String   @db.VarChar(50)
+  uid_adresse        String?  @db.VarChar(50)
+  type_code          String?  @db.VarChar(10)
+  type_libelle       String?  @db.VarChar(255)
+  intitule           String?  @db.VarChar(255)
+  numero_rue         String?  @db.VarChar(50)
+  nom_rue            String?  @db.VarChar(255)
+  complement_adresse String?  @db.VarChar(255)
+  code_postal        String?  @db.VarChar(10)
+  ville              String?  @db.VarChar(255)
+  created_at         DateTime @default(now()) @db.Timestamp(6)
+
+  acteur Acteurs @relation(fields: [acteur_uid], references: [uid], onDelete: Cascade)
+
+  @@map("acteurs_adresses_postales")
+}
+
+model ActeursAdressesMails {
+  id           Int      @id @default(autoincrement())
+  acteur_uid   String   @db.VarChar(50)
+  uid_adresse  String?  @db.VarChar(50)
+  type_code    String?  @db.VarChar(10)
+  type_libelle String?  @db.VarChar(255)
+  email        String?  @db.Text
+  created_at   DateTime @default(now()) @db.Timestamp(6)
+
+  acteur Acteurs @relation(fields: [acteur_uid], references: [uid], onDelete: Cascade)
+
+  @@map("acteurs_adresses_mails")
+}
+
+model ActeursReseauxSociaux {
+  id           Int      @id @default(autoincrement())
+  acteur_uid   String   @db.VarChar(50)
+  uid_adresse  String?  @db.VarChar(50)
+  type_code    String?  @db.VarChar(10)
+  type_libelle String?  @db.VarChar(255)
+  plateforme   String?  @db.VarChar(50)
+  identifiant  String?  @db.Text
+  created_at   DateTime @default(now()) @db.Timestamp(6)
+
+  acteur Acteurs @relation(fields: [acteur_uid], references: [uid], onDelete: Cascade)
+
+  @@map("acteurs_reseaux_sociaux")
+}
+
+model ActeursTelephones {
+  id                   Int      @id @default(autoincrement())
+  acteur_uid           String   @db.VarChar(50)
+  uid_adresse          String?  @db.VarChar(50)
+  type_code            String?  @db.VarChar(10)
+  type_libelle         String?  @db.VarChar(255)
+  adresse_rattachement String?  @db.VarChar(50)
+  numero               String?  @db.VarChar(100)
+  created_at           DateTime @default(now()) @db.Timestamp(6)
+
+  acteur Acteurs @relation(fields: [acteur_uid], references: [uid], onDelete: Cascade)
+
+  @@map("acteurs_telephones")
+}
+
+// ============================================
+// DÉPUTÉS & SCRUTINS
+// ============================================
+model Deputes {
+  id         String   @id @db.VarChar(50)
+  created_at DateTime @default(now()) @db.Timestamp(6)
+  updated_at DateTime @default(now()) @updatedAt @db.Timestamp(6)
+
+  votes VotesDeputes[]
+
+  @@map("deputes")
+}
+
+model GroupesParlementaires {
+  id         String   @id @db.VarChar(50)
+  nom        String?  @db.VarChar(255)
+  created_at DateTime @default(now()) @db.Timestamp(6)
+
+  scrutinsGroupes         ScrutinsGroupes[]
+  votesDeputes            VotesDeputes[]
+  scrutinsGroupesAgregats ScrutinsGroupesAgregats[]
+  partis                  RefPartisPolitiques[]
+
+  @@map("groupes_parlementaires")
+}
+
+model Scrutins {
+  uid                  String    @id @db.VarChar(50)
+  numero               String?   @db.VarChar(10)
+  legislature          String?   @db.VarChar(10)
+  date_scrutin         DateTime? @db.Date
+  titre                String?   @db.Text
+  type_scrutin_code    String?   @db.VarChar(10)
+  type_scrutin_libelle String?   @db.VarChar(255)
+  type_majorite        String?   @db.Text
+  resultat_code        String?   @db.VarChar(50)
+  resultat_libelle     String?   @db.Text
+  created_at           DateTime  @default(now()) @db.Timestamp(6)
+
+  scrutinsGroupes         ScrutinsGroupes[]
+  votesDeputes            VotesDeputes[]
+  agregats                ScrutinsAgregats?
+  scrutinsGroupesAgregats ScrutinsGroupesAgregats[]
+
+  @@map("scrutins")
+}
+
+model ScrutinsGroupes {
+  id                   Int      @id @default(autoincrement())
+  scrutin_uid          String   @db.VarChar(50)
+  groupe_id            String   @db.VarChar(50)
+  nombre_membres       Int?
+  position_majoritaire String?  @db.VarChar(50)
+  created_at           DateTime @default(now()) @db.Timestamp(6)
+
+  scrutin Scrutins              @relation(fields: [scrutin_uid], references: [uid], onDelete: Cascade)
+  groupe  GroupesParlementaires @relation(fields: [groupe_id], references: [id])
+
+  @@map("scrutins_groupes")
+}
+
+model VotesDeputes {
+  id             Int      @id @default(autoincrement())
+  scrutin_uid    String   @db.VarChar(50)
+  depute_id      String   @db.VarChar(50)
+  groupe_id      String?  @db.VarChar(50)
+  mandat_ref     String?  @db.VarChar(50)
+  position       String   @db.VarChar(20)
+  cause_position String?  @db.VarChar(10)
+  par_delegation Boolean?
+  created_at     DateTime @default(now()) @db.Timestamp(6)
+
+  scrutin Scrutins               @relation(fields: [scrutin_uid], references: [uid], onDelete: Cascade)
+  depute  Deputes                @relation(fields: [depute_id], references: [id])
+  groupe  GroupesParlementaires? @relation(fields: [groupe_id], references: [id])
+
+  @@map("votes_deputes")
+}
+
+model ScrutinsAgregats {
+  scrutin_uid                   String   @id @db.VarChar(50)
+  nombre_votants                Int?
+  suffrages_exprimes            Int?
+  suffrages_requis              Int?
+  total_pour                    Int?
+  total_contre                  Int?
+  total_abstentions             Int?
+  total_non_votants             Int?
+  total_non_votants_volontaires Int?
+  created_at                    DateTime @default(now()) @db.Timestamp(6)
+
+  scrutin Scrutins @relation(fields: [scrutin_uid], references: [uid], onDelete: Cascade)
+
+  @@map("scrutins_agregats")
+}
+
+model ScrutinsGroupesAgregats {
+  id                      Int      @id @default(autoincrement())
+  scrutin_uid             String   @db.VarChar(50)
+  groupe_id               String   @db.VarChar(50)
+  pour                    Int?
+  contre                  Int?
+  abstentions             Int?
+  non_votants             Int?
+  non_votants_volontaires Int?
+  created_at              DateTime @default(now()) @db.Timestamp(6)
+
+  scrutin Scrutins              @relation(fields: [scrutin_uid], references: [uid], onDelete: Cascade)
+  groupe  GroupesParlementaires @relation(fields: [groupe_id], references: [id])
+
+  @@map("scrutins_groupes_agregats")
+}
+
+// ============================================
+// RÉFÉRENTIELS
+// ============================================
+
+model RefPartisPolitiques {
+  id         Int      @id @default(autoincrement())
+  groupe_id  String?  @db.VarChar(50)
+  libelle    String   @db.VarChar(100)
+  code       String   @unique @db.VarChar(10)
+  created_at DateTime @default(now()) @db.Timestamp(6)
+  updated_at DateTime @default(now()) @updatedAt @db.Timestamp(6)
+
+  groupe GroupesParlementaires? @relation(fields: [groupe_id], references: [id])
+
+  @@map("ref_partis_politiques")
 }

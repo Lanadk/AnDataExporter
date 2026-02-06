@@ -35,9 +35,8 @@ try {
     execSync('docker compose --env-file .env.local up -d', { stdio: 'inherit' });
     console.log('\n✅ Container démarré');
     console.log('⏳ Attente de l\'initialisation de la base...\n');
-
-    execSync('sleep 5', { stdio: 'inherit' });
-
+    fs.unlinkSync(outputPath);
+    console.log('🧹 Fichier SQL généré nettoyé\n');
     console.log('✅ Base de données prête\n');
 } catch (error) {
     console.error('❌ Erreur:', error.message);
