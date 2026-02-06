@@ -12,8 +12,9 @@ import {
 } from "../../types/IScrutins";
 
 export class ScrutinsExtractor implements Extractor {
-    private deputes: Depute[] = [];
-    private groupes: GroupeParlementaire[] = [];
+    // Sets pour dédupliquer automatiquement
+    private deputesSet = new Set<Depute>();
+    private groupesSet = new Set<GroupeParlementaire>();
     private scrutins: Scrutin[] = [];
     private scrutinsGroupes: ScrutinGroupe[] = [];
     private votesDeputes: VoteDepute[] = [];
@@ -47,8 +48,8 @@ export class ScrutinsExtractor implements Extractor {
             votesDeputes: this.votesDeputes,
             scrutinsAgregats: this.scrutinsAgregats,
             scrutinsGroupesAgregats: this.scrutinsGroupesAgregats,
-            groupes: this.groupes,
-            deputes: this.deputes
+            groupes: Array.from(this.groupesSet).map(id => ({ id })),
+            deputes: Array.from(this.deputesSet).map(id => ({ id }))
         };
     }
 
@@ -106,7 +107,7 @@ export class ScrutinsExtractor implements Extractor {
                 if (!group || !group.organeRef) continue;
 
                 // Register groupe
-                this.groupes.push(group.organeRef);
+                this.groupesSet.add(group.organeRef);
 
                 // Extract scrutin_groupe
                 const scrutinGroupe: ScrutinGroupe = {
@@ -157,7 +158,7 @@ export class ScrutinsExtractor implements Extractor {
             if (!voter.acteurRef) continue;
 
             // Register depute
-            this.deputes.push(voter.acteurRef);
+            this.deputesSet.add(voter.acteurRef);
 
             const vote: VoteDepute = {
                 scrutin_uid: scrutinUid,
