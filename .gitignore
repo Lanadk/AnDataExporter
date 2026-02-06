@@ -14,8 +14,8 @@ yarn-error.log*
 .idea
 package-lock.json
 
-src/data/**/*.json
-src/data/**/*.zip
+data/**/*.json
+data/**/*.zip
 src/db/init-db.generated.sql
 
 .env
