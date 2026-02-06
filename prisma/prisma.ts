@@ -21,4 +21,4 @@ const prisma = new PrismaClient({
     adapter,
 })
 
-export { prisma, pool }
+export { prisma }
