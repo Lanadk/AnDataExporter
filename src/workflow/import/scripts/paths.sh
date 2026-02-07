@@ -19,5 +19,5 @@ export DB_USER_WRITER="user_etl_writer"
 export DB_NAME="deputedex"
 
 # Paramètres du splitter
-export MAX_JSON_SIZE_MB=150
+export MAX_JSON_SIZE_MB=125
 export JSON_SPLITTER_TS="$SCRIPT_DIR/json-splitter.ts"

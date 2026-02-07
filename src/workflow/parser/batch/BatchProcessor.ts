@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import {FileSource} from "./FileSource";
+import {formatJsonForImport} from "../../../utils/utils";
 
 export interface Extractor {
     processFile(filePath: string, data?: any): Promise<void> | void;
@@ -58,7 +59,7 @@ export class BatchProcessor {
         const tables = this.extractor.getTables();
         for (const [table, data] of Object.entries(tables)) {
             const filePath = path.join(outputDir, `${table}.json`);
-            fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
+            formatJsonForImport(data, filePath);
         }
 
         console.log('='.repeat(50));

@@ -38,7 +38,8 @@ project_acteurs_adresses_postales() {
        SELECT data->>'acteur_uid', data->>'uid_adresse', data->>'type_code', data->>'type_libelle',
               data->>'intitule', data->>'numero_rue', data->>'nom_rue', data->>'complement_adresse',
               data->>'code_postal', data->>'ville'
-       FROM $raw_table;"
+       FROM $raw_table
+       ON CONFLICT (uid_adresse) DO NOTHING;"
 }
 
 project_acteurs_adresses_mails() {
@@ -46,7 +47,8 @@ project_acteurs_adresses_mails() {
     docker exec "$DB_CONTAINER" psql -U "$DB_USER_WRITER" -d "$DB_NAME" -c \
       "INSERT INTO acteurs_adresses_mails (acteur_uid, uid_adresse, type_code, type_libelle, email)
        SELECT data->>'acteur_uid', data->>'uid_adresse', data->>'type_code', data->>'type_libelle', data->>'email'
-       FROM $raw_table;"
+       FROM $raw_table
+       ON CONFLICT (uid_adresse) DO NOTHING;"
 }
 
 project_acteurs_reseaux_sociaux() {
@@ -55,7 +57,8 @@ project_acteurs_reseaux_sociaux() {
       "INSERT INTO acteurs_reseaux_sociaux (acteur_uid, uid_adresse, type_code, type_libelle, plateforme, identifiant)
        SELECT data->>'acteur_uid', data->>'uid_adresse', data->>'type_code', data->>'type_libelle',
               data->>'plateforme', data->>'identifiant'
-       FROM $raw_table;"
+       FROM $raw_table
+       ON CONFLICT (uid_adresse) DO NOTHING;"
 }
 
 project_acteurs_telephones() {
@@ -64,7 +67,8 @@ project_acteurs_telephones() {
       "INSERT INTO acteurs_telephones (acteur_uid, uid_adresse, type_code, type_libelle, adresse_rattachement, numero)
        SELECT data->>'acteur_uid', data->>'uid_adresse', data->>'type_code', data->>'type_libelle',
               data->>'adresse_rattachement', data->>'numero'
-       FROM $raw_table;"
+       FROM $raw_table
+       ON CONFLICT (uid_adresse) DO NOTHING;"
 }
 
 for dir in "$SCHEMA_DIR" "$TABLES_DIR"; do

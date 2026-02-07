@@ -68,7 +68,8 @@ project_scrutins_groupes() {
     docker exec "$DB_CONTAINER" psql -U "$DB_USER_WRITER" -d "$DB_NAME" -c \
       "INSERT INTO scrutins_groupes (scrutin_uid, groupe_id, nombre_membres, position_majoritaire)
        SELECT data->>'scrutin_uid', data->>'groupe_id', (data->>'nombre_membres')::integer, data->>'position_majoritaire'
-       FROM $raw_table;"
+       FROM $raw_table
+       ON CONFLICT (scrutin_uid, groupe_id) DO NOTHING;"
 }
 
 project_votes_deputes() {
@@ -77,7 +78,8 @@ project_votes_deputes() {
       "INSERT INTO votes_deputes (scrutin_uid, depute_id, groupe_id, mandat_ref, position, cause_position, par_delegation)
        SELECT data->>'scrutin_uid', data->>'depute_id', data->>'groupe_id', data->>'mandat_ref',
               data->>'position', data->>'cause_position', (data->>'par_delegation')::boolean
-       FROM $raw_table;"
+       FROM $raw_table
+       ON CONFLICT (scrutin_uid, depute_id) DO NOTHING;"
 }
 
 project_scrutins_agregats() {
@@ -97,7 +99,8 @@ project_scrutins_groupes_agregats() {
       "INSERT INTO scrutins_groupes_agregats (scrutin_uid, groupe_id, pour, contre, abstentions, non_votants, non_votants_volontaires)
        SELECT data->>'scrutin_uid', data->>'groupe_id', (data->>'pour')::integer, (data->>'contre')::integer,
               (data->>'abstentions')::integer, (data->>'non_votants')::integer, (data->>'non_votants_volontaires')::integer
-       FROM $raw_table;"
+       FROM $raw_table
+       ON CONFLICT (scrutin_uid, groupe_id) DO NOTHING;"
 }
 
 # ==============================================================================

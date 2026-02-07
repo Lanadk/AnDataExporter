@@ -121,6 +121,7 @@ model ActeursAdressesPostales {
 
   acteur Acteurs @relation(fields: [acteur_uid], references: [uid], onDelete: Cascade)
 
+  @@unique([uid_adresse])
   @@map("acteurs_adresses_postales")
 }
 
@@ -135,6 +136,7 @@ model ActeursAdressesMails {
 
   acteur Acteurs @relation(fields: [acteur_uid], references: [uid], onDelete: Cascade)
 
+  @@unique([uid_adresse])
   @@map("acteurs_adresses_mails")
 }
 
@@ -150,13 +152,14 @@ model ActeursReseauxSociaux {
 
   acteur Acteurs @relation(fields: [acteur_uid], references: [uid], onDelete: Cascade)
 
+  @@unique([uid_adresse])
   @@map("acteurs_reseaux_sociaux")
 }
 
 model ActeursTelephones {
   id                   Int      @id @default(autoincrement())
   acteur_uid           String   @db.VarChar(50)
-  uid_adresse          String?  @db.VarChar(50)
+  uid_adresse          String   @db.VarChar(50)
   type_code            String?  @db.VarChar(10)
   type_libelle         String?  @db.VarChar(255)
   adresse_rattachement String?  @db.VarChar(50)
@@ -165,6 +168,7 @@ model ActeursTelephones {
 
   acteur Acteurs @relation(fields: [acteur_uid], references: [uid], onDelete: Cascade)
 
+  @@unique([uid_adresse])
   @@map("acteurs_telephones")
 }
 
@@ -178,6 +182,7 @@ model Deputes {
 
   votes VotesDeputes[]
 
+  @@unique([id])
   @@map("deputes")
 }
 
@@ -191,6 +196,7 @@ model GroupesParlementaires {
   scrutinsGroupesAgregats ScrutinsGroupesAgregats[]
   partis                  RefPartisPolitiques[]
 
+  @@unique([id]) //Un groupe est unique
   @@map("groupes_parlementaires")
 }
 
@@ -212,6 +218,7 @@ model Scrutins {
   agregats                ScrutinsAgregats?
   scrutinsGroupesAgregats ScrutinsGroupesAgregats[]
 
+  @@unique([uid]) // Un scrutin est unique
   @@map("scrutins")
 }
 
@@ -226,6 +233,7 @@ model ScrutinsGroupes {
   scrutin Scrutins              @relation(fields: [scrutin_uid], references: [uid], onDelete: Cascade)
   groupe  GroupesParlementaires @relation(fields: [groupe_id], references: [id])
 
+  @@unique([scrutin_uid, groupe_id]) // Un groupe ne peut apparaître qu'une fois par scrutin
   @@map("scrutins_groupes")
 }
 
@@ -244,6 +252,7 @@ model VotesDeputes {
   depute  Deputes                @relation(fields: [depute_id], references: [id])
   groupe  GroupesParlementaires? @relation(fields: [groupe_id], references: [id])
 
+  @@unique([scrutin_uid, depute_id]) // Un député ne peut voter qu'une fois par scrutin
   @@map("votes_deputes")
 }
 
@@ -261,6 +270,7 @@ model ScrutinsAgregats {
 
   scrutin Scrutins @relation(fields: [scrutin_uid], references: [uid], onDelete: Cascade)
 
+  @@unique([scrutin_uid]) // Un scrutin ne peut avoir qu'un agrégat
   @@map("scrutins_agregats")
 }
 
@@ -278,6 +288,7 @@ model ScrutinsGroupesAgregats {
   scrutin Scrutins              @relation(fields: [scrutin_uid], references: [uid], onDelete: Cascade)
   groupe  GroupesParlementaires @relation(fields: [groupe_id], references: [id])
 
+  @@unique([scrutin_uid, groupe_id]) // Un groupe ne peut avoir qu'un agrégat par scrutin
   @@map("scrutins_groupes_agregats")
 }
 
@@ -295,5 +306,6 @@ model RefPartisPolitiques {
 
   groupe GroupesParlementaires? @relation(fields: [groupe_id], references: [id])
 
+  @@unique([groupe_id]) // Un parti politique ne peut qu'être rataché à un groupe
   @@map("ref_partis_politiques")
 }
